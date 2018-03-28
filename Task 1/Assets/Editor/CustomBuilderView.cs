@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class CustomBuilderView : EditorWindow {
-
-    static string buildName;
+public class CustomBuilderView : EditorWindow
+{
     static string bundleIdentifier;
-
+    // Could possibly use BuildTargetGroup enum, but I want to limit users only for Android and iOS (or both)
     enum BuildPlatform
     {
         Android,
@@ -16,8 +15,10 @@ public class CustomBuilderView : EditorWindow {
     };
     BuildPlatform selectedBuildPlatform = BuildPlatform.Android;
 
+
     [MenuItem("JPT Application/Task 1/Custom Build Window")]
-	static void OpenBuildWindow(){
+	static void OpenBuildWindow()
+    {
         SetUpGlobalVariables();
 
         EditorWindow.GetWindow(typeof(CustomBuilderView));
@@ -25,23 +26,26 @@ public class CustomBuilderView : EditorWindow {
 
     static void SetUpGlobalVariables()
     {
-        buildName = Application.productName;
+        AndroidBuildParams.Instance.AppName = Application.productName;
         bundleIdentifier = Application.identifier;
     }
 
-	void OnGUI(){
-        buildName = EditorGUILayout.TextField("Build Name:", buildName);
+	void OnGUI()
+    {
+        AndroidBuildParams.Instance.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.Instance.AppName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
+        // TODO test if this works in the real world for both platforms
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android & BuildTargetGroup.iOS, bundleIdentifier);
         ValidateBundleIdentifier();
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform 2", selectedBuildPlatform);
 
         switch (selectedBuildPlatform)
         {
             case BuildPlatform.Android:
-
+                SetUpBuildForAndroid();
                 break;
             case BuildPlatform.iOS:
-
+                SetUpBuildForiOS();
                 break;
             case BuildPlatform.Both:
 
@@ -59,6 +63,35 @@ public class CustomBuilderView : EditorWindow {
             // Find out what characters bundle ID does not accept
             EditorGUILayout.HelpBox("Build will fail with default or empty bundle identifier. Please, make sure it is not \"" + defaultBundleID + "\" or empty", MessageType.Warning);
         }
+    }
+
+    void SetUpBuildForAndroid()
+    {
+        GUILayout.Space(5f);
+        GUILayout.Label("Here you can select additional options");
+        ShowAndroidBuildParams();
+        RenderBuildButton();
+    }
+    
+    void ShowAndroidBuildParams()
+    {
+        AndroidBuildParams.Instance.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.Instance.InstallAfterBuild);
+        AndroidBuildParams.Instance.RunAfterBuild = EditorGUILayout.Toggle("Run after build", AndroidBuildParams.Instance.RunAfterBuild);
+    }
+
+    void SetUpBuildForiOS()
+    {
+        RenderBuildButton();
+    }
+
+    void RenderBuildButton()
+    {
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Build for " + selectedBuildPlatform + "!"))
+        {
+            Debug.Log("Start building process");
+        }
+        GUILayout.Space(5f);
     }
 }
  
