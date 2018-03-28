@@ -20,19 +20,18 @@ public class CustomBuilderView : EditorWindow
 	static void OpenBuildWindow()
     {
         SetUpGlobalVariables();
-
         EditorWindow.GetWindow(typeof(CustomBuilderView));
 	}
 
     static void SetUpGlobalVariables()
     {
-        AndroidBuildParams.Instance.AppName = Application.productName;
+        AndroidBuildParams.AppName = Application.productName;
         bundleIdentifier = Application.identifier;
     }
 
 	void OnGUI()
     {
-        AndroidBuildParams.Instance.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.Instance.AppName);
+        AndroidBuildParams.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.AppName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
         // TODO test if this works in the real world for both platforms
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android & BuildTargetGroup.iOS, bundleIdentifier);
@@ -70,13 +69,20 @@ public class CustomBuilderView : EditorWindow
         GUILayout.Space(5f);
         GUILayout.Label("Here you can select additional options");
         ShowAndroidBuildParams();
+        GUILayout.Space(3f);
+        Debug.Log(ADBUtility.GetConnectedDevices());
         RenderBuildButton();
     }
     
     void ShowAndroidBuildParams()
     {
-        AndroidBuildParams.Instance.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.Instance.InstallAfterBuild);
-        AndroidBuildParams.Instance.RunAfterBuild = EditorGUILayout.Toggle("Run after build", AndroidBuildParams.Instance.RunAfterBuild);
+        AndroidBuildParams.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.InstallAfterBuild);
+        AndroidBuildParams.RunAfterBuild = EditorGUILayout.Toggle("Run after build", AndroidBuildParams.RunAfterBuild);
+    }
+
+    void ShowCurrentlyAttachedDevices()
+    {
+
     }
 
     void SetUpBuildForiOS()

@@ -1,30 +1,9 @@
 ﻿public class AndroidBuildParams
 {
-    #region Singleton pattern
-    private static AndroidBuildParams instance;
-    public static AndroidBuildParams Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = new AndroidBuildParams();
-            }
-            return instance;
-        }
-    }
-    private AndroidBuildParams()
-    {
-        AppName = "";
-        InstallAfterBuild = false;
-        RunAfterBuild = false;
-    }
-    #endregion
+    static public string AppName = "";
 
-    public string AppName = "";
-
-    private bool installAfterBuild;
-    public bool InstallAfterBuild
+    private static bool installAfterBuild = false;
+    public static bool InstallAfterBuild
     {
         get { return installAfterBuild; }
         // If we do not install after build, we can not run the app either
@@ -38,8 +17,8 @@
         }
     }
 
-    private bool runAfterBuild;
-    public bool RunAfterBuild
+    private static bool runAfterBuild = false;
+    public static bool RunAfterBuild
     {
         get { return runAfterBuild; }
         // We cannot run the application without installing it first.
