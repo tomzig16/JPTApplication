@@ -8,6 +8,14 @@ public class CustomBuilderView : EditorWindow {
     static string buildName;
     static string bundleIdentifier;
 
+    enum BuildPlatform
+    {
+        Android,
+        iOS,
+        Both
+    };
+    BuildPlatform selectedBuildPlatform = BuildPlatform.Android;
+
     [MenuItem("JPT Application/Task 1/Custom Build Window")]
 	static void OpenBuildWindow(){
         SetUpGlobalVariables();
@@ -25,6 +33,20 @@ public class CustomBuilderView : EditorWindow {
         buildName = EditorGUILayout.TextField("Build Name:", buildName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
         ValidateBundleIdentifier();
+        selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform 2", selectedBuildPlatform);
+
+        switch (selectedBuildPlatform)
+        {
+            case BuildPlatform.Android:
+
+                break;
+            case BuildPlatform.iOS:
+
+                break;
+            case BuildPlatform.Both:
+
+                break;
+        }
     }
 
     void ValidateBundleIdentifier()
