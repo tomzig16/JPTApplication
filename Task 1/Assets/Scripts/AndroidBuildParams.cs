@@ -3,6 +3,7 @@
 public class AndroidBuildParams
 {
     public static string AppName = "";
+    public static string apkPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
     public static string additionalArguments = "";
     private static bool installAfterBuild = false;
     public static bool InstallAfterBuild

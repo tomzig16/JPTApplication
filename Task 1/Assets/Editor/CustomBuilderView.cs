@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,7 +38,7 @@ public class CustomBuilderView : EditorWindow
     {
         AndroidBuildParams.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.AppName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
-        // TODO test if this works in the real world for both platforms
+        ShowPathSelectionButton();
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleIdentifier);
         ValidateBundleIdentifier();
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform", selectedBuildPlatform);
@@ -54,6 +55,39 @@ public class CustomBuilderView : EditorWindow
 
                 break;
         }
+    }
+
+    void ShowPathSelectionButton(){
+        GUILayout.BeginHorizontal();
+        string oldPath = AndroidBuildParams.apkPath;
+        AndroidBuildParams.apkPath = EditorGUILayout.TextField("Choose location:", AndroidBuildParams.apkPath);
+        if(GUILayout.Button("Choose path")){
+            GetApkPath(oldPath);
+        }
+        if(IsBuildPathValid()){
+            if(EditorUtility.DisplayDialog("Check build path", "Selected path is not valid. Please select any path outside Assets folder. Do you want to change it now?", "OK", "Change later")){
+                GetApkPath(oldPath);
+                // Could cause stack overflow but what maniac would have enough patience to select asset folder and click on "OK" enormous amount of time 
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
+
+    bool IsBuildPathValid(){
+        return !(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath) /*|| 
+                AndroidBuildParams.apkPath.All(char.IsLetterOrDigit)*/);
+    }
+
+    void GetApkPath(string oldPath){
+        AndroidBuildParams.apkPath = EditorUtility.SaveFolderPanel("Choose location of built game", "", "");
+        if(IsBuildPathValid()){
+            AndroidBuildParams.apkPath = oldPath;
+            if(EditorUtility.DisplayDialog("Check build path", "Selected path is not valid. Please select any path outside Assets folder. Do you want to change it now?", "OK", "Change later")){
+                GetApkPath(oldPath);
+                // Could cause stack overflow but what maniac would have enough patience to select asset folder and click on "OK" enormous amount of time 
+            }
+        }
+        
     }
 
     void ValidateBundleIdentifier()
@@ -102,11 +136,12 @@ public class CustomBuilderView : EditorWindow
             foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
             {
                 GUILayout.BeginHorizontal();
-                /*GUILayout.FlexibleSpace();
+                //GUILayout.FlexibleSpace();
                 GUIStyle style = new GUIStyle();
-                style.alignment = TextAnchor.MiddleRight;*/
+                style.alignment = TextAnchor.MiddleLeft;
                 GUILayout.Label(device.deviceID + "\t" + device.deviceName + "\t");
-                device.isBuildTarget = EditorGUILayout.Toggle("", device.isBuildTarget);
+                device.isBuildTarget = EditorGUILayout.ToggleLeft("", device.isBuildTarget);
+                
                 GUILayout.EndHorizontal();
                 if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
                 {
@@ -185,7 +220,12 @@ public class CustomBuilderView : EditorWindow
         GUILayout.FlexibleSpace();
         if (GUILayout.Button("Build for " + selectedBuildPlatform + "!"))
         {
-            Debug.Log("Start building process");
+            Debug.Log("Starting building process");
+            switch(selectedBuildPlatform){
+                case BuildPlatform.Android:
+                    JPTAndroidBuilder.StartBuildForAndroid();
+                    break;
+            }
         }
         GUILayout.Space(5f);
     }
