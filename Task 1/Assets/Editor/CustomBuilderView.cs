@@ -21,11 +21,11 @@ public class CustomBuilderView : EditorWindow
 
 
     [MenuItem("JPT Application/Task 1/Custom Build Window")]
-	static void OpenBuildWindow()
+    static void OpenBuildWindow()
     {
         SetUpGlobalVariables();
         EditorWindow.GetWindow(typeof(CustomBuilderView));
-	}
+    }
 
     static void SetUpGlobalVariables()
     {
@@ -33,7 +33,7 @@ public class CustomBuilderView : EditorWindow
         bundleIdentifier = Application.identifier;
     }
 
-	void OnGUI()
+    void OnGUI()
     {
         AndroidBuildParams.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.AppName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
@@ -59,7 +59,7 @@ public class CustomBuilderView : EditorWindow
     void ValidateBundleIdentifier()
     {
         string defaultBundleID = "com.Company.ProductName";
-        if (bundleIdentifier == defaultBundleID || 
+        if (bundleIdentifier == defaultBundleID ||
             bundleIdentifier == "")
         {
             // TODO add more checks (for example for special characters)
@@ -75,9 +75,9 @@ public class CustomBuilderView : EditorWindow
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
         ShowCurrentlyAttachedDevices();
-        RenderBuildButton();
+        ShowBuildButton();
     }
-    
+
     void ShowAndroidBuildParams()
     {
         AndroidBuildParams.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.InstallAfterBuild);
@@ -86,27 +86,90 @@ public class CustomBuilderView : EditorWindow
 
     void ShowCurrentlyAttachedDevices()
     {
-        if(Time.realtimeSinceStartup - lastUpdate >= deviceUpdateInterval){
+        if (Time.realtimeSinceStartup - lastUpdate >= deviceUpdateInterval)
+        {
             connectedDevices = ADBUtility.GetConnectedDevices();
             lastUpdate = Time.realtimeSinceStartup;
         }
-        if(connectedDevices == null){
+        if (connectedDevices == null)
+        {
             EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
         }
-        else{
+        else
+        {
             GUILayout.Label("Select devices which you want to build for:");
-            foreach(ADBUtility.ConnectedDeviceData device in connectedDevices){
-                GUILayout.Label(device.deviceID + "\t" + device.deviceName);
+            foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+            {
+                device.isBuildTarget = EditorGUILayout.Toggle(device.deviceID + "\t" + device.deviceName, device.isBuildTarget);
+                if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
+                {
+                    AndroidBuildParams.targetedDevices.Add(device.deviceID);
+                }
+                else if (!device.isBuildTarget && AndroidBuildParams.targetedDevices.Contains(device.deviceID))
+                {
+                    AndroidBuildParams.targetedDevices.Remove(device.deviceID);
+                }
+            }
+            ShowSelectAndDeselectAllButton();
+        }
+    }
+
+    void ShowSelectAndDeselectAllButton()
+    {
+        if(connectedDevices.Count > AndroidBuildParams.targetedDevices.Count){
+            if (GUILayout.Button("Select all devices"))
+            {
+                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+                {
+                    device.isBuildTarget = true;
+                    if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
+                    {
+                        AndroidBuildParams.targetedDevices.Add(device.deviceID);
+                    }
+                }
+            }
+        }
+        // If device was disconnected
+        else if(connectedDevices.Count < AndroidBuildParams.targetedDevices.Count)
+        {
+            List<string> devicesToRemoveFromList = new List<string>();
+            foreach(string deviceID in AndroidBuildParams.targetedDevices){
+                bool exists = false;
+                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+                {
+                    if(device.deviceID == deviceID){
+                        exists = true;
+                        break;
+                    }
+                }
+                if(!exists) {devicesToRemoveFromList.Add(deviceID);}
+            }
+            foreach(string id in devicesToRemoveFromList){
+                AndroidBuildParams.targetedDevices.Remove(id);
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Deselect all devices"))
+            {
+                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+                {
+                    device.isBuildTarget = false;
+                    if (!device.isBuildTarget && AndroidBuildParams.targetedDevices.Contains(device.deviceID))
+                    {
+                        AndroidBuildParams.targetedDevices.Remove(device.deviceID);
+                    }
+                }
             }
         }
     }
 
     void SetUpBuildForiOS()
     {
-        RenderBuildButton();
+        ShowBuildButton();
     }
 
-    void RenderBuildButton()
+    void ShowBuildButton()
     {
         GUILayout.FlexibleSpace();
         if (GUILayout.Button("Build for " + selectedBuildPlatform + "!"))
@@ -116,4 +179,3 @@ public class CustomBuilderView : EditorWindow
         GUILayout.Space(5f);
     }
 }
- 

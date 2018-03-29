@@ -1,4 +1,6 @@
-﻿public class AndroidBuildParams
+﻿using System.Collections.Generic;
+
+public class AndroidBuildParams
 {
     static public string AppName = "";
 
@@ -32,7 +34,9 @@
         }
     }
 
-    public static ADBUtility.ConnectedDeviceData targetDevices;
+    // Key: Device unique ID
+    // Value: Device name
+    public static HashSet<string> targetedDevices = new HashSet<string>();
 
 }
 

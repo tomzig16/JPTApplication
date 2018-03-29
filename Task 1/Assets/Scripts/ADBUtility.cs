@@ -6,7 +6,7 @@ using System.IO;
 
 public static class ADBUtility
 {
-    public struct ConnectedDeviceData{
+    public class ConnectedDeviceData{
         public string deviceName;
         public string deviceID;
         public bool isBuildTarget;
