@@ -9,6 +9,7 @@ public static class ADBUtility
     public struct ConnectedDeviceData{
         public string deviceName;
         public string deviceID;
+        public bool isBuildTarget;
     }
     public static List<ConnectedDeviceData> GetConnectedDevices()
     {
@@ -36,6 +37,7 @@ public static class ADBUtility
             ConnectedDeviceData deviceData = new ConnectedDeviceData();
             deviceData.deviceName = GetDeviceName(id);
             deviceData.deviceID = id;
+            deviceData.isBuildTarget = false;
             connectedDevices.Add(deviceData);
         }
         return connectedDevices;

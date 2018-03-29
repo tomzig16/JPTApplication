@@ -32,5 +32,7 @@
         }
     }
 
+    public static ADBUtility.ConnectedDeviceData targetDevices;
+
 }
 

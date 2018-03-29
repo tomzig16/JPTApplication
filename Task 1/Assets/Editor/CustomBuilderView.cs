@@ -38,7 +38,7 @@ public class CustomBuilderView : EditorWindow
         AndroidBuildParams.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.AppName);
         bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
         // TODO test if this works in the real world for both platforms
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android & BuildTargetGroup.iOS, bundleIdentifier);
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleIdentifier);
         ValidateBundleIdentifier();
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform 2", selectedBuildPlatform);
 
@@ -88,6 +88,7 @@ public class CustomBuilderView : EditorWindow
     {
         if(Time.realtimeSinceStartup - lastUpdate >= deviceUpdateInterval){
             connectedDevices = ADBUtility.GetConnectedDevices();
+            lastUpdate = Time.realtimeSinceStartup;
         }
         if(connectedDevices == null){
             EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
