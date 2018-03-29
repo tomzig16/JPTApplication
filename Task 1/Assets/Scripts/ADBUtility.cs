@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 public class ADBUtility
 {
     public struct ConnectedDeviceData{
-        string deviceName;
-        string deviceID;
+        public string deviceName;
+        public string deviceID;
     }
-    public static string[] GetConnectedDevices()
+    public static List<ConnectedDeviceData> GetConnectedDevices()
     {
         Process process = new Process();
         process.StartInfo = new ProcessStartInfo(){
@@ -26,7 +27,18 @@ public class ADBUtility
         //string error = process.StandardError.ReadToEnd();
         process.WaitForExit(10000);
         string[] ids = GetConnectedDeviceIDs(output);
-        return ids;
+        if(ids.Length < 1){
+            // No devices found
+            return null;
+        }
+        List<ConnectedDeviceData> connectedDevices = new List<ConnectedDeviceData>();
+        foreach(string id in ids){
+            ConnectedDeviceData deviceData = new ConnectedDeviceData();
+            deviceData.deviceName = GetDeviceName(id);
+            deviceData.deviceID = id;
+            connectedDevices.Add(deviceData);
+        }
+        return connectedDevices;
     }
 
     private static string GetADBPath(){
@@ -45,5 +57,48 @@ public class ADBUtility
             }
         }
         return connectedDevices.ToArray();
+    }
+
+    private static string GetDeviceName(string connectedDeviceID)
+    {
+        Process process = new Process();
+        string argument = "-s " + connectedDeviceID + " shell getprop ro.product.model";
+        process.StartInfo = new ProcessStartInfo(){
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            FileName = GetADBPath(),
+            Arguments = argument,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        process.Start();
+        string deviceModel = process.StandardOutput.ReadToEnd();
+        //string error = process.StandardError.ReadToEnd();
+        process.WaitForExit(10000);
+
+        // CSV file source:
+        // https://support.google.com/googleplay/android-developer/answer/6154891?hl=en
+        StreamReader file = new StreamReader(UnityEngine.Application.dataPath + "/Editor/Resources/supported_devices.csv", System.Text.Encoding.Unicode);
+        string line;
+        string[] deviceName = null;
+        int counter = 0;
+        while((line = file.ReadLine()) != null){
+            if(counter < 20){
+                UnityEngine.Debug.Log(line.Normalize().Equals(deviceModel.Normalize()));
+            }
+            if(line.Split(',')[3].Contains(deviceModel)){
+                deviceName = line.Split(',');
+                break;
+            }
+            counter++;
+        }
+
+        if(deviceName == null){
+            UnityEngine.Debug.Log(counter);
+            return "DEVICE NOT FOUND";
+        }
+
+        return deviceName[0] + " " + deviceName[1];
     }
 }

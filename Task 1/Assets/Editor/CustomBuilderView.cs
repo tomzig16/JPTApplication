@@ -70,7 +70,16 @@ public class CustomBuilderView : EditorWindow
         GUILayout.Label("Here you can select additional options");
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
-        string[] connectedDevices = ADBUtility.GetConnectedDevices();
+        List<ADBUtility.ConnectedDeviceData> connectedDevices = ADBUtility.GetConnectedDevices();
+        if(connectedDevices == null){
+            EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
+        }
+        else{
+            GUILayout.Label("Select devices which you want to build for:");
+            foreach(ADBUtility.ConnectedDeviceData device in connectedDevices){
+                GUILayout.Label(device.deviceID + "\t" + device.deviceName);
+            }
+        }
         Debug.Log(connectedDevices[0]);
         RenderBuildButton();
     }
