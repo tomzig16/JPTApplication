@@ -15,6 +15,10 @@ public class CustomBuilderView : EditorWindow
     };
     BuildPlatform selectedBuildPlatform = BuildPlatform.Android;
 
+    float deviceUpdateInterval = 10f;
+    float lastUpdate = -10f;
+    List<ADBUtility.ConnectedDeviceData> connectedDevices;
+
 
     [MenuItem("JPT Application/Task 1/Custom Build Window")]
 	static void OpenBuildWindow()
@@ -70,17 +74,7 @@ public class CustomBuilderView : EditorWindow
         GUILayout.Label("Here you can select additional options");
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
-        List<ADBUtility.ConnectedDeviceData> connectedDevices = ADBUtility.GetConnectedDevices();
-        if(connectedDevices == null){
-            EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
-        }
-        else{
-            GUILayout.Label("Select devices which you want to build for:");
-            foreach(ADBUtility.ConnectedDeviceData device in connectedDevices){
-                GUILayout.Label(device.deviceID + "\t" + device.deviceName);
-            }
-        }
-        Debug.Log(connectedDevices[0]);
+        ShowCurrentlyAttachedDevices();
         RenderBuildButton();
     }
     
@@ -92,7 +86,18 @@ public class CustomBuilderView : EditorWindow
 
     void ShowCurrentlyAttachedDevices()
     {
-
+        if(Time.realtimeSinceStartup - lastUpdate >= deviceUpdateInterval){
+            connectedDevices = ADBUtility.GetConnectedDevices();
+        }
+        if(connectedDevices == null){
+            EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
+        }
+        else{
+            GUILayout.Label("Select devices which you want to build for:");
+            foreach(ADBUtility.ConnectedDeviceData device in connectedDevices){
+                GUILayout.Label(device.deviceID + "\t" + device.deviceName);
+            }
+        }
     }
 
     void SetUpBuildForiOS()

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-public class ADBUtility
+public static class ADBUtility
 {
     public struct ConnectedDeviceData{
         public string deviceName;
@@ -76,6 +76,10 @@ public class ADBUtility
         string deviceModel = process.StandardOutput.ReadToEnd();
         //string error = process.StandardError.ReadToEnd();
         process.WaitForExit(10000);
+
+        if(String.IsNullOrEmpty(deviceModel)){
+            return "DEVICE NOT FOUND";
+        }
 
         // ADB returns with \r\n at the end. Removing those
         deviceModel = deviceModel.Remove(deviceModel.Length - 2, 2);
