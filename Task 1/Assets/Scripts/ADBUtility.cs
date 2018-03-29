@@ -7,21 +7,30 @@ public class ADBUtility
 {
     public static string GetConnectedDevices()
     {
-        Process process = new Process();
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.FileName = "cmd.exe";
-        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-        startInfo.CreateNoWindow = true;
-        startInfo.RedirectStandardInput = true;
-        startInfo.RedirectStandardOutput = true;
-        startInfo.UseShellExecute = false;
-        process.StartInfo = startInfo;
-        process.Start();
+        string cmdFileName;
+        // Add check for Linux?
+        if(Environment.OSVersion.Platform == PlatformID.Win32Windows){
+            cmdFileName = "cmd.exe";
+        }
+        else{
+            cmdFileName = "/AndroidStuff/sdk/platform-tools/adb";
+        }
 
-        process.StandardInput.WriteLine("/c adb devices");
-        process.StandardInput.Flush();
-        process.StandardInput.Close();
-        process.WaitForExit();
-        return process.StandardOutput.ReadToEnd();
+        Process process = new Process();
+        process.StartInfo = new ProcessStartInfo(){
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            FileName = cmdFileName,
+            Arguments = "devices",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        //process.OutputDataReceived += (sender, args) => Output = args.Data;
+        process.Start();
+        string output = process.StandardOutput.ReadToEnd();
+        //string error = process.StandardError.ReadToEnd();
+        process.WaitForExit(10000);
+        return output;
     }
 }
