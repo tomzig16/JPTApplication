@@ -71,6 +71,7 @@ public class CustomBuilderView : EditorWindow
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
         string connectedDevices = ADBUtility.GetConnectedDevices();
+        Debug.Log(connectedDevices);
         RenderBuildButton();
     }
     
