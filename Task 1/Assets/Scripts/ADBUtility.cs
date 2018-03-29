@@ -77,6 +77,9 @@ public class ADBUtility
         //string error = process.StandardError.ReadToEnd();
         process.WaitForExit(10000);
 
+        // ADB returns with \r\n at the end. Removing those
+        deviceModel = deviceModel.Remove(deviceModel.Length - 2, 2);
+
         // CSV file source:
         // https://support.google.com/googleplay/android-developer/answer/6154891?hl=en
         StreamReader file = new StreamReader(UnityEngine.Application.dataPath + "/Editor/Resources/supported_devices.csv", System.Text.Encoding.Unicode);
@@ -84,10 +87,7 @@ public class ADBUtility
         string[] deviceName = null;
         int counter = 0;
         while((line = file.ReadLine()) != null){
-            if(counter < 20){
-                UnityEngine.Debug.Log(line.Normalize().Equals(deviceModel.Normalize()));
-            }
-            if(line.Split(',')[3].Contains(deviceModel)){
+            if(line.Contains(deviceModel)){
                 deviceName = line.Split(',');
                 break;
             }
@@ -95,7 +95,6 @@ public class ADBUtility
         }
 
         if(deviceName == null){
-            UnityEngine.Debug.Log(counter);
             return "DEVICE NOT FOUND";
         }
 
