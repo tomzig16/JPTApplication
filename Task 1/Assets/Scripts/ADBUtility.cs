@@ -101,8 +101,9 @@ public static class ADBUtility
         {
             return "DEVICE NOT FOUND";
         }
-        // ADB returns with \r\n at the end. Removing those
-        deviceModel = deviceModel.Remove(deviceModel.Length - 2, 2);
+        // ADB returns with \r\n (\r\r\n on Windows apparently) at the end. Removing those
+        deviceModel = deviceModel.Trim();
+
         // CSV file source:
         // https://support.google.com/googleplay/android-developer/answer/6154891?hl=en
         StreamReader file = new StreamReader(UnityEngine.Application.dataPath + "/Editor/Resources/supported_devices.csv",

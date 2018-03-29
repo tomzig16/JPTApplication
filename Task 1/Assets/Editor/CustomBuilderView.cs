@@ -64,7 +64,7 @@ public class CustomBuilderView : EditorWindow
         if(GUILayout.Button("Choose path")){
             GetApkPath(oldPath);
         }
-        if(IsBuildPathValid()){
+        if(!IsBuildPathValid()){
             if(EditorUtility.DisplayDialog("Check build path", "Selected path is not valid. Please select any path outside Assets folder. Do you want to change it now?", "OK", "Change later")){
                 GetApkPath(oldPath);
                 // Could cause stack overflow but what maniac would have enough patience to select asset folder and click on "OK" enormous amount of time 
@@ -74,13 +74,14 @@ public class CustomBuilderView : EditorWindow
     }
 
     bool IsBuildPathValid(){
+        Debug.Log(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
         return !(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath) /*|| 
                 AndroidBuildParams.apkPath.All(char.IsLetterOrDigit)*/);
     }
 
     void GetApkPath(string oldPath){
         AndroidBuildParams.apkPath = EditorUtility.SaveFolderPanel("Choose location of built game", "", "");
-        if(IsBuildPathValid()){
+        if(!IsBuildPathValid()){
             AndroidBuildParams.apkPath = oldPath;
             if(EditorUtility.DisplayDialog("Check build path", "Selected path is not valid. Please select any path outside Assets folder. Do you want to change it now?", "OK", "Change later")){
                 GetApkPath(oldPath);
