@@ -44,7 +44,6 @@ public static class ADBUtility
     }
 
     private static string GetADBPath(){
-        // TODO test if this works on both OSes
         return UnityEditor.EditorPrefs.GetString("AndroidSdkRoot") + "/platform-tools/adb";
     }
 
@@ -88,7 +87,8 @@ public static class ADBUtility
 
         // CSV file source:
         // https://support.google.com/googleplay/android-developer/answer/6154891?hl=en
-        StreamReader file = new StreamReader(UnityEngine.Application.dataPath + "/Editor/Resources/supported_devices.csv", System.Text.Encoding.Unicode);
+        StreamReader file = new StreamReader(UnityEngine.Application.dataPath + "/Editor/Resources/supported_devices.csv", 
+                                                System.Text.Encoding.Unicode);
         string line;
         string[] deviceName = null;
         int counter = 0;

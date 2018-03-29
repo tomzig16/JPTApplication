@@ -2,8 +2,8 @@
 
 public class AndroidBuildParams
 {
-    static public string AppName = "";
-
+    public static string AppName = "";
+    public static string additionalArguments = "";
     private static bool installAfterBuild = false;
     public static bool InstallAfterBuild
     {

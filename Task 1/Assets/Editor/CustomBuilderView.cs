@@ -40,7 +40,7 @@ public class CustomBuilderView : EditorWindow
         // TODO test if this works in the real world for both platforms
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleIdentifier);
         ValidateBundleIdentifier();
-        selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform 2", selectedBuildPlatform);
+        selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform", selectedBuildPlatform);
 
         switch (selectedBuildPlatform)
         {
@@ -75,6 +75,7 @@ public class CustomBuilderView : EditorWindow
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
         ShowCurrentlyAttachedDevices();
+        ShowAdditionalFlagsOptions();
         ShowBuildButton();
     }
 
@@ -100,7 +101,13 @@ public class CustomBuilderView : EditorWindow
             GUILayout.Label("Select devices which you want to build for:");
             foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
             {
-                device.isBuildTarget = EditorGUILayout.Toggle(device.deviceID + "\t" + device.deviceName, device.isBuildTarget);
+                GUILayout.BeginHorizontal();
+                /*GUILayout.FlexibleSpace();
+                GUIStyle style = new GUIStyle();
+                style.alignment = TextAnchor.MiddleRight;*/
+                GUILayout.Label(device.deviceID + "\t" + device.deviceName + "\t");
+                device.isBuildTarget = EditorGUILayout.Toggle("", device.isBuildTarget);
+                GUILayout.EndHorizontal();
                 if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
                 {
                     AndroidBuildParams.targetedDevices.Add(device.deviceID);
@@ -162,6 +169,10 @@ public class CustomBuilderView : EditorWindow
                 }
             }
         }
+    }
+
+    void ShowAdditionalFlagsOptions(){
+        AndroidBuildParams.additionalArguments = EditorGUILayout.TextField("Additional arguments:", AndroidBuildParams.additionalArguments);
     }
 
     void SetUpBuildForiOS()
