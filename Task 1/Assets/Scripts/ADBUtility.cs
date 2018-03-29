@@ -5,7 +5,11 @@ using System.Diagnostics;
 
 public class ADBUtility
 {
-    public static string GetConnectedDevices()
+    public struct ConnectedDeviceData{
+        string deviceName;
+        string deviceID;
+    }
+    public static string[] GetConnectedDevices()
     {
         Process process = new Process();
         process.StartInfo = new ProcessStartInfo(){
@@ -21,11 +25,25 @@ public class ADBUtility
         string output = process.StandardOutput.ReadToEnd();
         //string error = process.StandardError.ReadToEnd();
         process.WaitForExit(10000);
-        return output;
+        string[] ids = GetConnectedDeviceIDs(output);
+        return ids;
     }
 
     private static string GetADBPath(){
         // TODO test if this works on both OSes
         return UnityEditor.EditorPrefs.GetString("AndroidSdkRoot") + "/platform-tools/adb";
+    }
+
+    private static string[] GetConnectedDeviceIDs(string adbDevicesOutput)
+    {
+        List<string> connectedDevices = new List<string>();
+        string[] lines = adbDevicesOutput.Split('\n');
+        foreach(string line in lines){
+            if(line.Contains("device") && !line.Contains("List")){
+                string[] id = line.Split('\t');
+                connectedDevices.Add(id[0]);
+            }
+        }
+        return connectedDevices.ToArray();
     }
 }

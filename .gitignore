@@ -35,3 +35,5 @@ sysinfo.txt
 
 # Personal preference
 ProjectSettings/
+.vscode/
+UnityPackageManager/

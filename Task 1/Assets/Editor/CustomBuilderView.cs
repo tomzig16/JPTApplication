@@ -70,8 +70,8 @@ public class CustomBuilderView : EditorWindow
         GUILayout.Label("Here you can select additional options");
         ShowAndroidBuildParams();
         GUILayout.Space(3f);
-        string connectedDevices = ADBUtility.GetConnectedDevices();
-        Debug.Log(connectedDevices);
+        string[] connectedDevices = ADBUtility.GetConnectedDevices();
+        Debug.Log(connectedDevices[0]);
         RenderBuildButton();
     }
     
