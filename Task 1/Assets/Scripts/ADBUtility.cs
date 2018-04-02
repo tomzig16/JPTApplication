@@ -76,7 +76,12 @@ public static class ADBUtility
 
     private static string GetADBPath()
     {
+#if UNITY_EDITOR
         return UnityEditor.EditorPrefs.GetString("AndroidSdkRoot") + "/platform-tools/adb";
+#else
+        // Should not be called.
+        return "";
+#endif
     }
 
     private static string[] GetConnectedDeviceIDs(string adbDevicesOutput)

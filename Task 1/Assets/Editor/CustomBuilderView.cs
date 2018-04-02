@@ -74,9 +74,8 @@ public class CustomBuilderView : EditorWindow
     }
 
     bool IsBuildPathValid(){
-        Debug.Log(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
-        return !(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath) /*|| 
-                AndroidBuildParams.apkPath.All(char.IsLetterOrDigit)*/);
+        //Debug.Log(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
+        return !(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
     }
 
     void GetApkPath(string oldPath){
@@ -85,7 +84,8 @@ public class CustomBuilderView : EditorWindow
             AndroidBuildParams.apkPath = oldPath;
             if(EditorUtility.DisplayDialog("Check build path", "Selected path is not valid. Please select any path outside Assets folder. Do you want to change it now?", "OK", "Change later")){
                 GetApkPath(oldPath);
-                // Could cause stack overflow but what maniac would have enough patience to select asset folder and click on "OK" enormous amount of time 
+                // Could potentially cause stack overflow but what maniac would have enough 
+                // patience to select asset folder and click on "OK" enormous amount of time 
             }
         }
         
@@ -116,6 +116,15 @@ public class CustomBuilderView : EditorWindow
 
     void ShowAndroidBuildParams()
     {
+        bool lastScriptingBackend = AndroidBuildParams.isIL2CPPBuild;
+        AndroidBuildParams.isIL2CPPBuild = EditorGUILayout.Toggle("IL2CPP build", AndroidBuildParams.isIL2CPPBuild);
+        if (lastScriptingBackend != AndroidBuildParams.isIL2CPPBuild)
+        {
+            Debug.Log("Scripting backend has changed. IL2CPP: " + AndroidBuildParams.isIL2CPPBuild);
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, 
+                AndroidBuildParams.isIL2CPPBuild ? ScriptingImplementation.IL2CPP : ScriptingImplementation.Mono2x);
+        }
+
         AndroidBuildParams.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.InstallAfterBuild);
         AndroidBuildParams.RunAfterBuild = EditorGUILayout.Toggle("Run after build", AndroidBuildParams.RunAfterBuild);
     }

@@ -2,7 +2,7 @@
 
 public class AndroidBuildParams
 {
-    public static string AppName = "";
+    public static string AppName = UnityEngine.Application.productName;
     public static string apkPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
     public static string additionalArguments = "";
     private static bool installAfterBuild = false;
@@ -34,6 +34,8 @@ public class AndroidBuildParams
             runAfterBuild = value;
         }
     }
+
+    public static bool isIL2CPPBuild = false;
 
     // Key: Device unique ID
     // Value: Device name
