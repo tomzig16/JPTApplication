@@ -7,12 +7,20 @@ public class JPTAndroidBuilder {
 	public static void StartBuildForAndroid(){
 #if UNITY_EDITOR
         EditorBuildSettingsScene[] scenesToBuild = EditorBuildSettings.scenes;
+        string apkPath = AndroidBuildParams.apkPath + "/build/" + AndroidBuildParams.AppName + ".apk";
         BuildPipeline.BuildPlayer(
             scenesToBuild,
-            AndroidBuildParams.apkPath + "/build/" + AndroidBuildParams.AppName + ".apk",
+            apkPath,
             BuildTarget.Android,
             BuildOptions.None);
         // BuildOptions.None all the time. Autorun and installation is done seperately.
+        UnityEngine.Debug.Log("Building complete!");
+
+        if (AndroidBuildParams.InstallAfterBuild)
+        {
+            UnityEngine.Debug.Log("Installing...");
+            ADBUtility.InstallOnSelectedDevices(apkPath);
+        }
 #endif
     }
 

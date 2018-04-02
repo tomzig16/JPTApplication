@@ -130,4 +130,13 @@ public static class ADBUtility
         }
         return deviceName[0] + " " + deviceName[1];
     }
+
+    public static void InstallOnSelectedDevices(string apkPath)
+    {
+        foreach (string deviceId in AndroidBuildParams.targetedDevices)
+        {
+            UnityEngine.Debug.Log("Installing apk on deviceid: " + deviceId);
+            RunADBCommand("install -r " + apkPath, deviceId);
+        }
+    }
 }
