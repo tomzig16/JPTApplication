@@ -16,17 +16,8 @@ public class JPTAndroidBuilder {
         // BuildOptions.None all the time. Autorun and installation is done seperately.
         UnityEngine.Debug.Log("Android building complete!");
 
-        if (AndroidBuildParams.InstallAfterBuild)
-        {
-            UnityEngine.Debug.Log("Installing...");
-            ADBUtility.InstallOnSelectedDevices(apkPath);
-        }
-
-        if(AndroidBuildParams.RunAfterBuild)
-        {
-            UnityEngine.Debug.Log("Running...");
-            ADBUtility.RunOnSelectedDevices();
-        }
+        ADBUtility.InstallOnSelectedDevices(apkPath);
+        ADBUtility.RunOnSelectedDevices();
 #endif
     }
 

@@ -2,16 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 
 public static class ADBUtility
 {
-    public class ConnectedDeviceData
-    {
-        public string deviceName;
-        public string deviceID;
-        public bool isBuildTarget;
-    }
 
     private static string RunADBCommand(string command, string deviceID)
     {
@@ -65,11 +60,18 @@ public static class ADBUtility
         List<ConnectedDeviceData> connectedDevices = new List<ConnectedDeviceData>();
         foreach (string id in ids)
         {
-            ConnectedDeviceData deviceData = new ConnectedDeviceData();
-            deviceData.deviceName = GetDeviceName(id);
-            deviceData.deviceID = id;
-            deviceData.isBuildTarget = false;
-            connectedDevices.Add(deviceData);
+            ConnectedDeviceData existingDeviceEntry = AndroidBuildParams.FindInList(id);
+            if(existingDeviceEntry == null){
+                ConnectedDeviceData deviceData = new ConnectedDeviceData();
+                deviceData.deviceName = GetDeviceName(id);
+                deviceData.deviceID = id;
+                deviceData.IsInstallTarget = false;
+                deviceData.IsRunTarget = false;
+                connectedDevices.Add(deviceData);
+            }
+            else{
+                connectedDevices.Add(existingDeviceEntry);
+            }
         }
         return connectedDevices;
     }
@@ -133,18 +135,24 @@ public static class ADBUtility
 
     public static void InstallOnSelectedDevices(string apkPath)
     {
-        foreach (string deviceId in AndroidBuildParams.targetedDevices)
+        foreach (ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
         {
-            UnityEngine.Debug.Log("Installing apk on deviceid: " + deviceId);
-            RunADBCommand("install -r " + apkPath, deviceId);
+            if(device.IsInstallTarget)
+            {
+                UnityEngine.Debug.Log("Installing apk on device: " + device.deviceName);
+                RunADBCommand("install -r " + AndroidBuildParams.additionalArguments + " " + apkPath, device.deviceID);
+            }
         }
     }
 
     public static void RunOnSelectedDevices()
     {
-        foreach(string deviceID in AndroidBuildParams.targetedDevices)
+        foreach(ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
         {
-            RunADBCommand("shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n " + AndroidBuildParams.apkBundleID + "/com.unity3d.player.UnityPlayerActivity", deviceID);
+            if(device.IsRunTarget)
+            {
+                RunADBCommand("shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n " + AndroidBuildParams.apkBundleID + "/com.unity3d.player.UnityPlayerActivity", device.deviceID);
+            }
         }
     }
 }

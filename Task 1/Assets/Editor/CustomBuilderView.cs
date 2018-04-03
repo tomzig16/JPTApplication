@@ -17,8 +17,6 @@ public class CustomBuilderView : EditorWindow
 
     float deviceUpdateInterval = 10f;
     float lastUpdate = -10f;
-    List<ADBUtility.ConnectedDeviceData> connectedDevices;
-
 
     [MenuItem("JPT Application/Task 1/Custom Build Window")]
     static void OpenBuildWindow()
@@ -78,7 +76,6 @@ public class CustomBuilderView : EditorWindow
     }
 
     bool IsBuildPathValid(){
-        //Debug.Log(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
         return !(AndroidBuildParams.apkPath.Contains(UnityEngine.Application.dataPath));
     }
 
@@ -128,93 +125,96 @@ public class CustomBuilderView : EditorWindow
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, 
                 AndroidBuildParams.isIL2CPPBuild ? ScriptingImplementation.IL2CPP : ScriptingImplementation.Mono2x);
         }
-
-        AndroidBuildParams.InstallAfterBuild = EditorGUILayout.Toggle("Install after build", AndroidBuildParams.InstallAfterBuild);
-        AndroidBuildParams.RunAfterBuild = EditorGUILayout.Toggle("Run after build", AndroidBuildParams.RunAfterBuild);
     }
 
     void ShowCurrentlyAttachedDevices()
     {
         if (Time.realtimeSinceStartup - lastUpdate >= deviceUpdateInterval)
         {
-            connectedDevices = ADBUtility.GetConnectedDevices();
+            AndroidBuildParams.connectedDevices = ADBUtility.GetConnectedDevices();
             lastUpdate = Time.realtimeSinceStartup;
         }
-        if (connectedDevices == null)
+        if (AndroidBuildParams.connectedDevices == null)
         {
             EditorGUILayout.HelpBox("There are no devices connected.", MessageType.Warning);
         }
         else
         {
-            GUILayout.Label("Select devices which you want to build for:");
-            foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+            ShowLabels();
+            foreach(ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
             {
                 GUILayout.BeginHorizontal();
-                //GUILayout.FlexibleSpace();
                 GUIStyle style = new GUIStyle();
                 style.alignment = TextAnchor.MiddleLeft;
-                GUILayout.Label(device.deviceID + "\t" + device.deviceName + "\t");
-                device.isBuildTarget = EditorGUILayout.ToggleLeft("", device.isBuildTarget);
-                
+                EditorGUILayout.LabelField(device.deviceID, GUILayout.MinWidth(0));
+                EditorGUILayout.LabelField(device.deviceName, GUILayout.MinWidth(0));
+                device.IsInstallTarget = EditorGUILayout.ToggleLeft("", device.IsInstallTarget, GUILayout.Width(50));
+                device.IsRunTarget = EditorGUILayout.ToggleLeft("", device.IsRunTarget, GUILayout.Width(50));
                 GUILayout.EndHorizontal();
-                if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
-                {
-                    AndroidBuildParams.targetedDevices.Add(device.deviceID);
-                }
-                else if (!device.isBuildTarget && AndroidBuildParams.targetedDevices.Contains(device.deviceID))
-                {
-                    AndroidBuildParams.targetedDevices.Remove(device.deviceID);
-                }
             }
-            ShowSelectAndDeselectAllButton();
+            GUILayout.BeginHorizontal();
+            ShowSelectAndDeselectAllButton_Install();
+            ShowSelectAndDeselectAllButton_Run();
+            GUILayout.EndHorizontal();
         }
     }
 
-    void ShowSelectAndDeselectAllButton()
+    void ShowLabels(){
+        GUILayout.Label("Select devices which you want to build for:");
+        GUILayout.BeginHorizontal();
+        // 20
+        EditorGUILayout.LabelField("Device ID", GUILayout.MinWidth(0));
+        EditorGUILayout.LabelField("Device name", GUILayout.MinWidth(0));
+        EditorGUILayout.LabelField("Install", GUILayout.Width(50));
+        EditorGUILayout.LabelField("Run", GUILayout.Width(50));      
+
+        GUILayout.EndHorizontal();
+    }
+
+    void ShowSelectAndDeselectAllButton_Install()
     {
-        if(connectedDevices.Count > AndroidBuildParams.targetedDevices.Count){
-            if (GUILayout.Button("Select all devices"))
+        int cForInstallationTargets = AndroidBuildParams.connectedDevices.Where(x => x.IsInstallTarget == true).Count();
+        if(AndroidBuildParams.connectedDevices.Count > cForInstallationTargets){
+            if (GUILayout.Button("Select all installation targets"))
             {
-                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+                foreach (ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
                 {
-                    device.isBuildTarget = true;
-                    if (device.isBuildTarget && !AndroidBuildParams.targetedDevices.Contains(device.deviceID))
-                    {
-                        AndroidBuildParams.targetedDevices.Add(device.deviceID);
-                    }
+                    device.IsInstallTarget = true;
                 }
-            }
-        }
-        // If device was disconnected
-        else if(connectedDevices.Count < AndroidBuildParams.targetedDevices.Count)
-        {
-            List<string> devicesToRemoveFromList = new List<string>();
-            foreach(string deviceID in AndroidBuildParams.targetedDevices){
-                bool exists = false;
-                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
-                {
-                    if(device.deviceID == deviceID){
-                        exists = true;
-                        break;
-                    }
-                }
-                if(!exists) {devicesToRemoveFromList.Add(deviceID);}
-            }
-            foreach(string id in devicesToRemoveFromList){
-                AndroidBuildParams.targetedDevices.Remove(id);
             }
         }
         else
         {
-            if (GUILayout.Button("Deselect all devices"))
+            if (GUILayout.Button("Deselect all installation targets"))
             {
-                foreach (ADBUtility.ConnectedDeviceData device in connectedDevices)
+                foreach (ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
                 {
-                    device.isBuildTarget = false;
-                    if (!device.isBuildTarget && AndroidBuildParams.targetedDevices.Contains(device.deviceID))
-                    {
-                        AndroidBuildParams.targetedDevices.Remove(device.deviceID);
-                    }
+                    device.IsInstallTarget = false;
+                }
+            }
+        }
+    }
+
+        void ShowSelectAndDeselectAllButton_Run()
+    {
+        int cForRunTargets = AndroidBuildParams.connectedDevices.Where(x => x.IsRunTarget == true).Count();
+        if(AndroidBuildParams.connectedDevices.Count > cForRunTargets){
+            if (GUILayout.Button("Select all run targets"))
+            {
+                foreach (ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
+                {
+                    device.IsRunTarget = true;
+                }
+            }
+        }
+
+        else
+        {
+            if (GUILayout.Button("Deselect all run targets"))
+            {
+                foreach (ConnectedDeviceData device in AndroidBuildParams.connectedDevices)
+                {
+                    device.IsRunTarget = false;
                 }
             }
         }
