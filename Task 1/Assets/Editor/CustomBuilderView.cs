@@ -39,7 +39,11 @@ public class CustomBuilderView : EditorWindow
         AndroidBuildParams.apkBundleID = EditorGUILayout.TextField("Bundle Identifier:", AndroidBuildParams.apkBundleID);
         ShowPathSelectionButton();
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, AndroidBuildParams.apkBundleID);
+        // As iOS will not use anything special, I will take settings from AndroidBuildParams.
+        // However, in real world, this should be changed and iOS should be given its own params class.
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, AndroidBuildParams.apkBundleID); 
         ValidateBundleIdentifier();
+        PlayerSettings.productName = AndroidBuildParams.AppName;
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform", selectedBuildPlatform);
 
         switch (selectedBuildPlatform)
@@ -51,7 +55,8 @@ public class CustomBuilderView : EditorWindow
                 SetUpBuildForiOS();
                 break;
             case BuildPlatform.Both:
-
+                SetUpBuildForAndroid();
+                // iOS does not have anthing important, so skiping it.
                 break;
         }
     }
@@ -221,6 +226,7 @@ public class CustomBuilderView : EditorWindow
 
     void SetUpBuildForiOS()
     {
+        GUILayout.Label("Just press build button:");
         ShowBuildButton();
     }
 
@@ -233,6 +239,13 @@ public class CustomBuilderView : EditorWindow
             switch(selectedBuildPlatform){
                 case BuildPlatform.Android:
                     JPTAndroidBuilder.StartBuildForAndroid();
+                    break;
+                case BuildPlatform.iOS:
+                    JPTAndroidBuilder.StartBuildForiOS();
+                    break;
+                case BuildPlatform.Both:
+                    JPTAndroidBuilder.StartBuildForAndroid();
+                    JPTAndroidBuilder.StartBuildForiOS();
                     break;
             }
         }
