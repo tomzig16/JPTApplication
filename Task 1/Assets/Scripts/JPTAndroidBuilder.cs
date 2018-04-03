@@ -8,11 +8,12 @@ public class JPTAndroidBuilder {
 #if UNITY_EDITOR
         EditorBuildSettingsScene[] scenesToBuild = EditorBuildSettings.scenes;
         string apkPath = AndroidBuildParams.apkPath + "/build/" + AndroidBuildParams.AppName + ".apk";
+        BuildOptions options = AndroidBuildParams.isDevelopmentBuild ? BuildOptions.Development : BuildOptions.None;
         BuildPipeline.BuildPlayer(
             scenesToBuild,
             apkPath,
             BuildTarget.Android,
-            BuildOptions.None);
+            options);
         // BuildOptions.None all the time. Autorun and installation is done seperately.
         UnityEngine.Debug.Log("Android building complete!");
 
@@ -26,11 +27,12 @@ public class JPTAndroidBuilder {
 #if UNITY_EDITOR
         EditorBuildSettingsScene[] scenesToBuild = EditorBuildSettings.scenes;
         string apkPath = AndroidBuildParams.apkPath + "/build/" + AndroidBuildParams.AppName + "-iOS";
+        BuildOptions options = AndroidBuildParams.isDevelopmentBuild ? BuildOptions.Development : BuildOptions.None;
         BuildPipeline.BuildPlayer(
             scenesToBuild,
             apkPath,
             BuildTarget.iOS,
-            BuildOptions.None);
+            options);
         // BuildOptions.None all the time. Autorun and installation is done seperately.
         UnityEngine.Debug.Log("iOS building complete!");
 #endif

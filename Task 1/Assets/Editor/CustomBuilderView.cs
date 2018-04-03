@@ -42,6 +42,9 @@ public class CustomBuilderView : EditorWindow
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, AndroidBuildParams.apkBundleID); 
         ValidateBundleIdentifier();
         PlayerSettings.productName = AndroidBuildParams.AppName;
+        AndroidBuildParams.isDevelopmentBuild = EditorGUILayout.Toggle("Development build", AndroidBuildParams.isDevelopmentBuild);
+        EditorUserBuildSettings.development = AndroidBuildParams.isDevelopmentBuild;
+        
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform", selectedBuildPlatform);
 
         switch (selectedBuildPlatform)
@@ -57,6 +60,13 @@ public class CustomBuilderView : EditorWindow
                 // iOS does not have anthing important, so skiping it.
                 break;
         }
+    }
+
+    void OnEnable()
+    {
+        //SetUpGlobalVariables();
+        //OnGUI();
+        AndroidBuildParams.connectedDevices = ADBUtility.GetConnectedDevices();
     }
 
     void ShowPathSelectionButton(){
