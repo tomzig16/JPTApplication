@@ -139,4 +139,12 @@ public static class ADBUtility
             RunADBCommand("install -r " + apkPath, deviceId);
         }
     }
+
+    public static void RunOnSelectedDevices()
+    {
+        foreach(string deviceID in AndroidBuildParams.targetedDevices)
+        {
+            RunADBCommand("shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000 -n " + AndroidBuildParams.apkBundleID + "/com.unity3d.player.UnityPlayerActivity", deviceID);
+        }
+    }
 }

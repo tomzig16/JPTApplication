@@ -21,6 +21,12 @@ public class JPTAndroidBuilder {
             UnityEngine.Debug.Log("Installing...");
             ADBUtility.InstallOnSelectedDevices(apkPath);
         }
+
+        if(AndroidBuildParams.RunAfterBuild)
+        {
+            UnityEngine.Debug.Log("Running...");
+            ADBUtility.RunOnSelectedDevices();
+        }
 #endif
     }
 

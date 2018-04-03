@@ -3,6 +3,7 @@
 public class AndroidBuildParams
 {
     public static string AppName = UnityEngine.Application.productName;
+    public static string apkBundleID = UnityEngine.Application.identifier;
     public static string apkPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
     public static string additionalArguments = "";
     private static bool installAfterBuild = false;

@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class CustomBuilderView : EditorWindow
 {
-    static string bundleIdentifier;
     // Could possibly use BuildTargetGroup enum, but I want to limit users only for Android and iOS (or both)
     enum BuildPlatform
     {
@@ -31,15 +30,15 @@ public class CustomBuilderView : EditorWindow
     static void SetUpGlobalVariables()
     {
         AndroidBuildParams.AppName = Application.productName;
-        bundleIdentifier = Application.identifier;
+        AndroidBuildParams.apkBundleID = Application.identifier;
     }
 
     void OnGUI()
     {
         AndroidBuildParams.AppName = EditorGUILayout.TextField("Build Name:", AndroidBuildParams.AppName);
-        bundleIdentifier = EditorGUILayout.TextField("Bundle Identifier:", bundleIdentifier);
+        AndroidBuildParams.apkBundleID = EditorGUILayout.TextField("Bundle Identifier:", AndroidBuildParams.apkBundleID);
         ShowPathSelectionButton();
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleIdentifier);
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, AndroidBuildParams.apkBundleID);
         ValidateBundleIdentifier();
         selectedBuildPlatform = (BuildPlatform)EditorGUILayout.EnumPopup("Select platform", selectedBuildPlatform);
 
@@ -94,8 +93,8 @@ public class CustomBuilderView : EditorWindow
     void ValidateBundleIdentifier()
     {
         string defaultBundleID = "com.Company.ProductName";
-        if (bundleIdentifier == defaultBundleID ||
-            bundleIdentifier == "")
+        if (AndroidBuildParams.apkBundleID == defaultBundleID ||
+            AndroidBuildParams.apkBundleID == "")
         {
             // TODO add more checks (for example for special characters)
             // Find out what characters bundle ID does not accept
